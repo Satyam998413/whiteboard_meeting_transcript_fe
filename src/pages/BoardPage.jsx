@@ -1,31 +1,24 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import axios from 'axios';
-import { selectAuthAccessToken } from '../store/authSlice';
+import apiClient from '../api/apiClient';
 
 function BoardPage() {
   const { boardId } = useParams();
-  const accessToken = useSelector(selectAuthAccessToken);
   const [board, setBoard] = useState(null);
   const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchBoard = async () => {
       try {
-        const { data } = await axios.get(`/api/boards/${boardId}`, {
-          headers: { Authorization: `Bearer ${accessToken || ''}` },
-        });
+        const { data } = await apiClient.get(`/api/boards/${boardId}`);
         setBoard(data.data);
       } catch (err) {
         setError(err.response?.data?.error || 'Board could not be loaded');
       }
     };
 
-    if (accessToken) {
-      fetchBoard();
-    }
-  }, [boardId, accessToken]);
+    fetchBoard();
+  }, [boardId]);
 
   return (
     <div className='flex-center full-height' style={{ padding: '2rem' }}>

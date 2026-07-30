@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import axios from 'axios';
-import { selectAuthUser, selectAuthAccessToken } from '../store/authSlice';
+import apiClient from '../api/apiClient';
+import { selectAuthUser } from '../store/authSlice';
 
 function DashboardPage() {
   const [boards, setBoards] = useState([]);
@@ -10,7 +10,6 @@ function DashboardPage() {
   const [error, setError] = useState('');
   const [title, setTitle] = useState('');
   const user = useSelector(selectAuthUser);
-  const accessToken = useSelector(selectAuthAccessToken);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,26 +21,7 @@ function DashboardPage() {
     const fetchBoards = async () => {
       try {
         setLoading(true);
-        const { data } = await axios.get('/api/boards', {
-          headers: { Authorization: `Bearer ${accessToken || ''}` },
-        });
-        setBoards(data.data || []);
-      } catch (err) {
-        setError(err.response?.data?.error || 'Could not load boards');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBoards();
-  }, [user, accessToken, navigate]);
-
-    const fetchBoards = async () => {
-      try {
-        setLoading(true);
-        const { data } = await axios.get('/api/boards', {
-          headers: { Authorization: `Bearer ${user.accessToken || ''}` },
-        });
+        const { data } = await apiClient.get('/api/boards');
         setBoards(data.data || []);
       } catch (err) {
         setError(err.response?.data?.error || 'Could not load boards');
@@ -58,9 +38,7 @@ function DashboardPage() {
     if (!title.trim()) return;
     try {
       setLoading(true);
-      const { data } = await axios.post('/api/boards', { title }, {
-        headers: { Authorization: `Bearer ${user.accessToken || ''}` },
-      });
+      const { data } = await apiClient.post('/api/boards', { title });
       setBoards((current) => [data.data, ...current]);
       setTitle('');
     } catch (err) {

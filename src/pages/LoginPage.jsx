@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../api/apiClient';
+import { loginSuccess } from '../store/authSlice';
 import './LoginPage.css';
 
 function LoginPage() {
@@ -14,11 +15,12 @@ function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post('/api/auth/login', { email, password }, { withCredentials: true });
-      dispatch({ type: 'auth/loginSuccess', payload: data });
+      const { data } = await apiClient.post('/api/auth/login', { email, password });
+      dispatch(loginSuccess(data));
+      apiClient.defaults.headers.common.Authorization = `Bearer ${data.accessToken}`;
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+      setError(err.response?.data?.error || 'Login failed');
     }
   };
 

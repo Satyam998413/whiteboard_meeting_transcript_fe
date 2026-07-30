@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../api/apiClient';
+import { verifySuccess } from '../store/authSlice';
 
 function VerifyPage() {
   const [email, setEmail] = useState('');
@@ -13,8 +14,9 @@ function VerifyPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post('/api/auth/verify-otp', { email, otp }, { withCredentials: true });
-      dispatch({ type: 'auth/verifySuccess', payload: data });
+      const { data } = await apiClient.post('/api/auth/verify-otp', { email, otp });
+      dispatch(verifySuccess(data));
+      apiClient.defaults.headers.common.Authorization = `Bearer ${data.accessToken}`;
       navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.error || 'Verification failed');

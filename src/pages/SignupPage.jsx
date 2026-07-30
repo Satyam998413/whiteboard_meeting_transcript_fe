@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../api/apiClient';
+import { signupSuccess } from '../store/authSlice';
 
 function SignupPage() {
   const [email, setEmail] = useState('');
@@ -13,13 +14,13 @@ function SignupPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post('/api/auth/signup', { email, password }, { withCredentials: true });
-      dispatch({ type: 'auth/signupSuccess', payload: data });
-      // after signup, request OTP flow
-      await axios.post('/api/auth/request-otp', { email }, { withCredentials: true });
+      const { data } = await apiClient.post('/api/auth/signup', { email, password });
+      dispatch(signupSuccess(data));
+      apiClient.defaults.headers.common.Authorization = `Bearer ${data.accessToken}`;
+      await apiClient.post('/api/auth/request-otp', { email });
       navigate('/verify');
     } catch (err) {
-      setError(err.response?.data?.message || 'Signup failed');
+      setError(err.response?.data?.error || 'Signup failed');
     }
   };
 
