@@ -1,2 +1,7 @@
 # whiteboard_meeting_transcript_fe
-This is based on meeting time problem solveing application frntend in react js based
+
+Minimal React frontend skeleton for the whiteboard meeting transcript project.
+
+- Dummy home page only
+- No routing, no redux, no API calls
+- Clean starter code for future development
