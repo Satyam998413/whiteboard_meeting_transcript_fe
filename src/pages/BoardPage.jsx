@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import html2canvas from 'html2canvas';
 import { useParams } from 'react-router-dom';
 import apiClient from '../api/apiClient';
 import { useToast } from '../components/ToastProvider';
@@ -24,28 +25,6 @@ function BoardPage() {
 
   return (
     <div className='flex-center full-height' style={{ padding: '2rem' }}>
-                <button
-                  className='btn'
-                  onClick={async () => {
-                    try {
-                      const resp = await apiClient.get(`/api/boards/${board._id}/export/pdf`, { responseType: 'blob' });
-                      const blob = new Blob([resp.data], { type: 'application/pdf' });
-                      const url = window.URL.createObjectURL(blob);
-                      const a = document.createElement('a');
-                      a.href = url;
-                      a.download = `${(board.title || 'board').replace(/[^a-z0-9-_]/gi, '_')}.pdf`;
-                      document.body.appendChild(a);
-                      a.click();
-                      a.remove();
-                      window.URL.revokeObjectURL(url);
-                      showToast('PDF export started');
-                    } catch (e) {
-                      showToast('PDF export failed');
-                    }
-                  }}
-                >
-                  Export PDF
-                </button>
       <div className='glass' style={{ width: '100%', maxWidth: '1100px', padding: '2rem' }}>
         {error ? (
           <p style={{ color: '#ff6b6b' }}>{error}</p>
@@ -96,6 +75,58 @@ function BoardPage() {
                 >
                   Export notes
                 </button>
+                <button
+                  className='btn'
+                  onClick={async () => {
+                    try {
+                      // capture canvas area if present
+                      let canvasDataUrl = null;
+                      const el = document.querySelector('.canvas-area');
+                      if (el) {
+                        const c = await html2canvas(el, { backgroundColor: null });
+                        canvasDataUrl = c.toDataURL('image/png');
+                      }
+                      const resp = await apiClient.post(`/api/boards/${board._id}/export/pdf`, { canvasDataUrl }, { responseType: 'blob' });
+                      const blob = new Blob([resp.data], { type: 'application/pdf' });
+                      const url = window.URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `${(board.title || 'board').replace(/[^a-z0-9-_]/gi, '_')}.pdf`;
+                      document.body.appendChild(a);
+                      a.click();
+                      a.remove();
+                      window.URL.revokeObjectURL(url);
+                      showToast('PDF export started');
+                    } catch (e) {
+                      showToast('PDF export failed');
+                    }
+                  }}
+                >
+                  Export PDF
+                </button>
+                <button
+                  className='btn'
+                  onClick={async () => {
+                    try {
+                      const resp = await apiClient.get(`/api/boards/${board._id}/export/markdown`, { responseType: 'blob' });
+                      const blob = new Blob([resp.data], { type: 'text/markdown' });
+                      const url = window.URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `${(board.title || 'board').replace(/[^a-z0-9-_]/gi, '_')}.md`;
+                      document.body.appendChild(a);
+                      a.click();
+                      a.remove();
+                      window.URL.revokeObjectURL(url);
+                      showToast('Markdown export started');
+                    } catch (e) {
+                      showToast('Markdown export failed');
+                    }
+                  }}
+                >
+                  Export Markdown
+                </button>
+                <a href={`/api/boards/${board._id}/export/docx`} className='btn' target='_blank' rel='noreferrer'>Export DOCX</a>
               </div>
             </div>
             <section style={{ marginTop: '2rem' }}>

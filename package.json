@@ -20,6 +20,10 @@
     "y-websocket": "^3.0.0",
     "yjs": "^13.6.13"
   },
+  "optionalDependencies": {
+    "html2canvas": "^1.4.1",
+    "@axe-core/react": "^4.6.2"
+  },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.4.5",
     "@testing-library/react": "^14.1.0",

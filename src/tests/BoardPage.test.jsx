@@ -19,7 +19,7 @@ describe('BoardPage', () => {
         </MemoryRouter>
       </Provider>
     );
-
-    expect(screen.getByText(/export pdf/i)).toBeInTheDocument();
+    // On initial render the board is loading (async fetch). Ensure loading state exists.
+    expect(screen.getByText(/loading board/i)).toBeInTheDocument();
   });
 });

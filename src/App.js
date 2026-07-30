@@ -11,6 +11,18 @@ import { useSelector, useDispatch } from 'react-redux';
 import { selectIsAuthenticated, loginSuccess } from './store/authSlice';
 import { useEffect } from 'react';
 import { setAuthToken } from './api/apiClient';
+// Axe accessibility testing in development
+if (process.env.NODE_ENV !== 'production') {
+  try {
+    // eslint-disable-next-line global-require
+    const axe = require('@axe-core/react');
+    // eslint-disable-next-line global-require
+    const React = require('react');
+    if (typeof axe === 'function') axe(React, {});
+  } catch (e) {
+    // axe not installed in all environments; ignore
+  }
+}
 
 function App() {
   const isAuthenticated = useSelector(selectIsAuthenticated);
