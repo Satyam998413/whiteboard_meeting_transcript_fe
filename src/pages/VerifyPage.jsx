@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import apiClient from '../api/apiClient';
+import apiClient, { setAuthToken } from '../api/apiClient';
 import { verifySuccess } from '../store/authSlice';
 
 function VerifyPage() {
@@ -16,7 +16,8 @@ function VerifyPage() {
     try {
       const { data } = await apiClient.post('/api/auth/verify-otp', { email, otp });
       dispatch(verifySuccess(data));
-      apiClient.defaults.headers.common.Authorization = `Bearer ${data.accessToken}`;
+      try { localStorage.setItem('auth', JSON.stringify(data)); } catch (e) {}
+      setAuthToken(data.accessToken);
       navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.error || 'Verification failed');

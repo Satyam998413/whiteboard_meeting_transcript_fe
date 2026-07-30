@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import apiClient from '../api/apiClient';
+import apiClient, { setAuthToken } from '../api/apiClient';
 import { signupSuccess } from '../store/authSlice';
 
 function SignupPage() {
@@ -16,7 +16,8 @@ function SignupPage() {
     try {
       const { data } = await apiClient.post('/api/auth/signup', { email, password });
       dispatch(signupSuccess(data));
-      apiClient.defaults.headers.common.Authorization = `Bearer ${data.accessToken}`;
+      try { localStorage.setItem('auth', JSON.stringify(data)); } catch (e) {}
+      setAuthToken(data.accessToken);
       await apiClient.post('/api/auth/request-otp', { email });
       navigate('/verify');
     } catch (err) {

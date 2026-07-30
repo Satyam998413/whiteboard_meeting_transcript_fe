@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import apiClient from '../api/apiClient';
+import apiClient, { setAuthToken } from '../api/apiClient';
 import { loginSuccess } from '../store/authSlice';
 import './LoginPage.css';
 
@@ -17,7 +17,9 @@ function LoginPage() {
     try {
       const { data } = await apiClient.post('/api/auth/login', { email, password });
       dispatch(loginSuccess(data));
-      apiClient.defaults.headers.common.Authorization = `Bearer ${data.accessToken}`;
+      // persist auth and set token for subsequent requests
+      try { localStorage.setItem('auth', JSON.stringify(data)); } catch (e) {}
+      setAuthToken(data.accessToken);
       navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.error || 'Login failed');

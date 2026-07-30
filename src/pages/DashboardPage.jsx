@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import apiClient from '../api/apiClient';
-import { selectAuthUser } from '../store/authSlice';
+import { selectAuthUser, logout as logoutAction } from '../store/authSlice';
+import { setAuthToken } from '../api/apiClient';
 
 function DashboardPage() {
   const [boards, setBoards] = useState([]);
@@ -11,6 +12,7 @@ function DashboardPage() {
   const [title, setTitle] = useState('');
   const user = useSelector(selectAuthUser);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (!user) {
@@ -56,7 +58,20 @@ function DashboardPage() {
             <h1 style={{ marginBottom: '0.5rem' }}>Dashboard</h1>
             <p style={{ color: 'var(--color-text-secondary)' }}>Your boards live here. Create a new board to start collaborating.</p>
           </div>
-          <Link to='/login' className='btn'>Switch Account</Link>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button
+              onClick={() => {
+                // clear stored auth and unset API token
+                try { localStorage.removeItem('auth'); } catch (e) {}
+                setAuthToken(null);
+                dispatch(logoutAction());
+                navigate('/login');
+              }}
+              className='btn'
+            >
+              Log out
+            </button>
+          </div>
         </div>
 
         <form onSubmit={handleCreateBoard} style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>

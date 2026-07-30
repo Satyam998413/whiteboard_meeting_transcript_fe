@@ -5,11 +5,29 @@ import VerifyPage from './pages/VerifyPage';
 import DashboardPage from './pages/DashboardPage';
 import BoardPage from './pages/BoardPage';
 import SharePage from './pages/SharePage';
-import { useSelector } from 'react-redux';
-import { selectIsAuthenticated } from './store/authSlice';
+import { useSelector, useDispatch } from 'react-redux';
+import { selectIsAuthenticated, loginSuccess } from './store/authSlice';
+import { useEffect } from 'react';
+import { setAuthToken } from './api/apiClient';
 
 function App() {
   const isAuthenticated = useSelector(selectIsAuthenticated);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('auth');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed?.accessToken) {
+          setAuthToken(parsed.accessToken);
+          dispatch(loginSuccess(parsed));
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, [dispatch]);
   return (
     <Router>
       <Routes>
