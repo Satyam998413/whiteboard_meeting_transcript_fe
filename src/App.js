@@ -5,6 +5,8 @@ import VerifyPage from './pages/VerifyPage';
 import DashboardPage from './pages/DashboardPage';
 import BoardPage from './pages/BoardPage';
 import SharePage from './pages/SharePage';
+import Header from './components/Header';
+import ToastProvider from './components/ToastProvider';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectIsAuthenticated, loginSuccess } from './store/authSlice';
 import { useEffect } from 'react';
@@ -30,7 +32,12 @@ function App() {
   }, [dispatch]);
   return (
     <Router>
-      <Routes>
+      <ToastProvider>
+        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+          <a href="#main" className="sr-only">Skip to main content</a>
+          {isAuthenticated && <Header />}
+          <main id="main" role="main" style={{ flex: 1 }}>
+            <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/verify" element={<VerifyPage />} />
@@ -44,7 +51,10 @@ function App() {
         />
         <Route path="/share/:token" element={<SharePage />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
-      </Routes>
+            </Routes>
+          </main>
+        </div>
+      </ToastProvider>
     </Router>
   );
 }

@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import apiClient from '../api/apiClient';
 import { selectAuthUser, logout as logoutAction } from '../store/authSlice';
 import { setAuthToken } from '../api/apiClient';
+import { useToast } from '../components/ToastProvider';
 
 function DashboardPage() {
   const [boards, setBoards] = useState([]);
@@ -13,6 +14,7 @@ function DashboardPage() {
   const user = useSelector(selectAuthUser);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { showToast } = useToast();
 
   useEffect(() => {
     if (!user) {
@@ -43,6 +45,7 @@ function DashboardPage() {
       const { data } = await apiClient.post('/api/boards', { title });
       setBoards((current) => [data.data, ...current]);
       setTitle('');
+      try { showToast('Board created'); } catch (e) {}
     } catch (err) {
       setError(err.response?.data?.error || 'Could not create board');
     } finally {
@@ -74,7 +77,7 @@ function DashboardPage() {
           </div>
         </div>
 
-        <form onSubmit={handleCreateBoard} style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
+          <form onSubmit={handleCreateBoard} aria-label="Create board" style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -88,7 +91,7 @@ function DashboardPage() {
         {error && <p style={{ color: '#ff6b6b', marginTop: '1rem' }}>{error}</p>}
         {loading && <p style={{ color: 'var(--color-text-secondary)', marginTop: '1rem' }}>Loading boards...</p>}
 
-        <div style={{ marginTop: '2rem' }}>
+          <div style={{ marginTop: '2rem' }} role="region" aria-label="Boards list">
           {boards.length === 0 ? (
             <p style={{ color: 'var(--color-text-secondary)' }}>No boards yet. Create one to get started.</p>
           ) : (
@@ -97,11 +100,10 @@ function DashboardPage() {
                 <Link
                   key={board._id || board.id}
                   to={`/boards/${board._id || board.id}`}
-                  className='glass'
-                  style={{ display: 'block', padding: '1.25rem', textDecoration: 'none', color: '#fff' }}
+                  className='board-card'
                 >
                   <h2 style={{ marginBottom: '0.5rem' }}>{board.title}</h2>
-                  <p style={{ color: 'var(--color-text-secondary)' }}>
+                  <p className='board-meta'>
                     {board.meta?.description || 'Open the board to continue editing.'}
                   </p>
                 </Link>

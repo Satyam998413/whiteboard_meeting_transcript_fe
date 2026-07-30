@@ -25,8 +25,9 @@ function VerifyPage() {
   };
 
   return (
-    <div className="flex-center full-height glass" style={{ maxWidth: '400px', margin: 'auto', padding: '2rem' }}>
-      <form onSubmit={handleSubmit} className="verify-form" style={{ width: '100%' }}>
+    <div className="flex-center full-height">
+      <div className="form-card">
+        <form onSubmit={handleSubmit} className="verify-form" style={{ width: '100%' }}>
         <h2 style={{ textAlign: 'center', marginBottom: '1rem' }}>Enter OTP</h2>
         {error && <p style={{ color: '#ff6b6b', marginBottom: '1rem' }}>{error}</p>}
         <div style={{ marginBottom: '1rem' }}>
@@ -54,7 +55,8 @@ function VerifyPage() {
           />
         </div>
         <button type="submit" className="btn" style={{ width: '100%' }}>Verify</button>
-      </form>
+        </form>
+      </div>
     </div>
   );
 }
