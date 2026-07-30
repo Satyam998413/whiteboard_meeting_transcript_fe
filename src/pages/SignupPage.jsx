@@ -1,0 +1,64 @@
+import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
+function SignupPage() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const { data } = await axios.post('/api/auth/signup', { email, password }, { withCredentials: true });
+      dispatch({ type: 'auth/signupSuccess', payload: data });
+      // after signup, request OTP flow
+      await axios.post('/api/auth/request-otp', { email }, { withCredentials: true });
+      navigate('/verify');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Signup failed');
+    }
+  };
+
+  return (
+    <div className="flex-center full-height glass" style={{ maxWidth: '400px', margin: 'auto', padding: '2rem' }}>
+      <form onSubmit={handleSubmit} className="signup-form" style={{ width: '100%' }}>
+        <h2 style={{ textAlign: 'center', marginBottom: '1rem' }}>Create Account</h2>
+        {error && <p style={{ color: '#ff6b6b', marginBottom: '1rem' }}>{error}</p>}
+        <div style={{ marginBottom: '1rem' }}>
+          <input
+            id="email"
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="input-field"
+            style={{ width: '100%', padding: '0.5rem', borderRadius: '4px' }}
+          />
+        </div>
+        <div style={{ marginBottom: '1rem' }}>
+          <input
+            id="password"
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className="input-field"
+            style={{ width: '100%', padding: '0.5rem', borderRadius: '4px' }}
+          />
+        </div>
+        <button type="submit" className="btn" style={{ width: '100%' }}>Sign Up</button>
+        <p style={{ marginTop: '1rem', textAlign: 'center' }}>
+          Already have an account? <a href="/login" style={{ color: 'var(--color-primary)' }}>Log In</a>
+        </p>
+      </form>
+    </div>
+  );
+}
+
+export default SignupPage;

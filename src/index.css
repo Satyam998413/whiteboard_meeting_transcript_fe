@@ -1,49 +1,81 @@
+/* Import Inter font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
 :root {
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  color-scheme: light;
-  background: #f3f4f6;
+  --font-family: 'Inter', sans-serif;
+  --color-primary: #0d9488; /* teal */
+  --color-primary-dark: #0f766e;
+  --color-bg: #121212; /* dark background */
+  --color-surface: rgba(255, 255, 255, 0.04);
+  --color-text-primary: #e5e5e5;
+  --color-text-secondary: #a0a0a0;
+  --radius: 8px;
+  --shadow-sm: 0 2px 4px rgba(0,0,0,0.2);
+  --shadow-md: 0 4px 8px rgba(0,0,0,0.3);
+  --transition: all 0.2s ease;
 }
 
-* {
-  box-sizing: border-box;
-}
-
-html, body, #root {
-  min-height: 100%;
-  margin: 0;
-  padding: 0;
-}
-
+/* Dark mode (default) */
 body {
   margin: 0;
-  background: #f3f4f6;
-  color: #111827;
+  padding: 0;
+  font-family: var(--font-family);
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.app-shell {
+/* Glassmorphism helper class */
+.glass {
+  background: var(--color-surface);
+  backdrop-filter: blur(12px);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+button, .btn {
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+  color: #fff;
+  transition: var(--transition);
+}
+
+button:hover, .btn:hover {
+  background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary));
+  box-shadow: var(--shadow-md);
+}
+
+/* Focus outline for accessibility */
+button:focus, .btn:focus, a:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Simple utility classes */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.full-height {
   min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: 24px;
 }
 
-.home-card {
-  width: min(640px, 100%);
-  padding: 32px;
-  background: #ffffff;
-  border-radius: 24px;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
+/* Responsive typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+  line-height: 1.2;
 }
 
-.home-card h1 {
-  margin: 0 0 16px;
-  font-size: clamp(2.25rem, 4vw, 3rem);
-}
-
-.home-card p {
-  margin: 0;
-  line-height: 1.75;
-  color: #4b5563;
+p {
+  margin: 0 0 1rem 0;
+  line-height: 1.5;
 }
  
