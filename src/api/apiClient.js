@@ -26,21 +26,37 @@ export const setAuthToken = (token) => {
 };
 
 export const clearAuth = () => {
-  try { localStorage.removeItem('auth'); } catch (e) {}
+  try {
+    localStorage.removeItem('auth');
+  } catch (e) {}
   setAuthToken(null);
 };
 
-// Response interceptor to handle 401 -> try refresh
+// Backend responses are uniformly { success, data, meta? } / { success:false, error }. Unwrap
+// the envelope here once so every call site can keep doing `const { data } = await apiClient...`
+// and get the actual payload, not the wrapper.
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (response.data && typeof response.data === 'object' && 'data' in response.data && 'success' in response.data) {
+      if (response.data.meta) response.meta = response.data.meta;
+      response.data = response.data.data;
+    }
+    return response;
+  },
   async (error) => {
+    // Backend error shape is { success:false, error:{ code, message, details? } }. Flatten
+    // error.response.data.error down to the message string so every call site can keep doing
+    // `err.response?.data?.error` and get a renderable string, not an object.
+    if (error.response?.data?.error && typeof error.response.data.error === 'object') {
+      error.response.data.error = error.response.data.error.message || 'Something went wrong';
+    }
+
     const originalRequest = error.config;
     if (!originalRequest || originalRequest._retry) {
       return Promise.reject(error);
     }
 
     if (error.response && error.response.status === 401) {
-      // mark retry to avoid infinite loop
       originalRequest._retry = true;
 
       if (isRefreshing) {
@@ -61,12 +77,10 @@ apiClient.interceptors.response.use(
         const resp = await apiClient.post('/api/auth/refresh');
         const newAccess = resp.data?.accessToken;
         if (newAccess) {
-          // persist and update header
           try {
             const raw = localStorage.getItem('auth');
             const parsed = raw ? JSON.parse(raw) : {};
-            const updated = { ...parsed, accessToken: newAccess, refreshToken: resp.data?.refreshToken };
-            localStorage.setItem('auth', JSON.stringify(updated));
+            localStorage.setItem('auth', JSON.stringify({ ...parsed, accessToken: newAccess }));
           } catch (e) {}
           setAuthToken(newAccess);
           onRefreshed(newAccess);

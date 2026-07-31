@@ -1,30 +1,29 @@
-
-import React from 'react'; // 👈 Add this at the top of App.jsx
-
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import VerifyPage from './pages/VerifyPage';
 import DashboardPage from './pages/DashboardPage';
 import BoardPage from './pages/BoardPage';
+import BoardSettingsPage from './pages/BoardSettingsPage';
+import WorkspacePage from './pages/WorkspacePage';
 import SharePage from './pages/SharePage';
+import HomePage from './pages/HomePage';
 import Header from './components/Header';
 import ToastProvider from './components/ToastProvider';
-import { useSelector, useDispatch } from 'react-redux';
+import RequireAuth from './components/RequireAuth';
 import { selectIsAuthenticated, loginSuccess } from './store/authSlice';
-import { useState,useEffect } from 'react';
 import { setAuthToken } from './api/apiClient';
-// Axe accessibility testing in development
-if (process.env.NODE_ENV !== 'production') {
-  try {
-    // eslint-disable-next-line global-require
-    const axe = require('@axe-core/react');
-    // eslint-disable-next-line global-require
-    const React = require('react');
-    if (typeof axe === 'function') axe(React, {});
-  } catch (e) {
-    // axe not installed in all environments; ignore
-  }
+
+// Axe accessibility testing in development only — dynamic import so it's never bundled/loaded
+// in production and never throws in environments where the optional dependency isn't installed.
+if (import.meta.env.DEV) {
+  import('@axe-core/react')
+    .then((axe) => {
+      if (typeof axe.default === 'function') axe.default(React, 1000, {});
+    })
+    .catch(() => {});
 }
 
 function App() {
@@ -45,27 +44,55 @@ function App() {
       // ignore
     }
   }, [dispatch]);
+
   return (
     <Router>
       <ToastProvider>
-        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-          <a href="#main" className="sr-only">Skip to main content</a>
+        <div className="flex min-h-screen flex-col">
+          <a href="#main" className="sr-only">
+            Skip to main content
+          </a>
           {isAuthenticated && <Header />}
-          <main id="main" role="main" style={{ flex: 1 }}>
+          <main id="main" role="main" className="flex-1">
             <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/verify" element={<VerifyPage />} />
-        <Route
-          path="/dashboard"
-          element={isAuthenticated ? <DashboardPage /> : <Navigate to="/login" replace />}
-        />
-        <Route
-          path="/boards/:boardId"
-          element={isAuthenticated ? <BoardPage /> : <Navigate to="/login" replace />}
-        />
-        <Route path="/share/:token" element={<SharePage />} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/" element={<HomePage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignupPage />} />
+              <Route path="/verify" element={<VerifyPage />} />
+              <Route
+                path="/dashboard"
+                element={
+                  <RequireAuth>
+                    <DashboardPage />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/workspaces/:workspaceId"
+                element={
+                  <RequireAuth>
+                    <WorkspacePage />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/boards/:boardId"
+                element={
+                  <RequireAuth>
+                    <BoardPage />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/boards/:boardId/settings"
+                element={
+                  <RequireAuth>
+                    <BoardSettingsPage />
+                  </RequireAuth>
+                }
+              />
+              <Route path="/share/:token" element={<SharePage />} />
+              <Route path="*" element={<Navigate to={isAuthenticated ? '/dashboard' : '/'} replace />} />
             </Routes>
           </main>
         </div>

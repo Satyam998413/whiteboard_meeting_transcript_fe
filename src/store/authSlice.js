@@ -4,48 +4,32 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
   user: null,
   accessToken: null,
-  refreshToken: null,
   isAuthenticated: false,
   loading: false,
   error: null,
+};
+
+// Refresh token is cookie-only (HttpOnly, set by the backend) — never held in JS-accessible
+// state, so it can't be read by an XSS payload or leaked into localStorage.
+const applySession = (state, action) => {
+  const { user, accessToken } = action.payload;
+  state.user = user;
+  state.accessToken = accessToken;
+  state.isAuthenticated = true;
+  state.loading = false;
+  state.error = null;
 };
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    loginSuccess(state, action) {
-      const { user, accessToken, refreshToken } = action.payload;
-      state.user = user;
-      state.accessToken = accessToken;
-      state.refreshToken = refreshToken;
-      state.isAuthenticated = true;
-      state.loading = false;
-      state.error = null;
-    },
-    signupSuccess(state, action) {
-      // payload may contain same fields as login
-      const { user, accessToken, refreshToken } = action.payload;
-      state.user = user;
-      state.accessToken = accessToken;
-      state.refreshToken = refreshToken;
-      state.isAuthenticated = true;
-      state.loading = false;
-      state.error = null;
-    },
-    verifySuccess(state, action) {
-      const { user, accessToken, refreshToken } = action.payload;
-      state.user = user;
-      state.accessToken = accessToken;
-      state.refreshToken = refreshToken;
-      state.isAuthenticated = true;
-      state.loading = false;
-      state.error = null;
-    },
+    loginSuccess: applySession,
+    signupSuccess: applySession,
+    verifySuccess: applySession,
     logout(state) {
       state.user = null;
       state.accessToken = null;
-      state.refreshToken = null;
       state.isAuthenticated = false;
     },
     setLoading(state, action) {

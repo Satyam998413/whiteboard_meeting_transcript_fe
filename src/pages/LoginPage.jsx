@@ -1,71 +1,68 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import apiClient, { setAuthToken } from '../api/apiClient';
 import { loginSuccess } from '../store/authSlice';
-import './LoginPage.css';
+import AuthLayout from '../components/AuthLayout';
+import Input from '../components/ui/Input';
+import Button from '../components/ui/Button';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
     try {
       const { data } = await apiClient.post('/api/auth/login', { email, password });
       dispatch(loginSuccess(data));
-      // persist auth and set token for subsequent requests
-      try { localStorage.setItem('auth', JSON.stringify(data)); } catch (e) {}
+      try {
+        localStorage.setItem('auth', JSON.stringify(data));
+      } catch (e) {}
       setAuthToken(data.accessToken);
       navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.error || 'Login failed');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex-center full-height">
-      <div className="form-card">
-        <form onSubmit={handleSubmit} className="login-form" style={{ width: '100%' }}>
-        <h2 style={{ textAlign: 'center', marginBottom: '1rem' }}>Sign In</h2>
-        {error && <p style={{ color: '#ff6b6b', marginBottom: '1rem' }}>{error}</p>}
-        <div style={{ marginBottom: '1rem' }}>
-          <label htmlFor="email" className="sr-only">Email</label>
-          <input
-            id="email"
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="input-field"
-            style={{ width: '100%', padding: '0.5rem', borderRadius: '4px' }}
-          />
-        </div>
-        <div style={{ marginBottom: '1rem' }}>
-          <label htmlFor="password" className="sr-only">Password</label>
-          <input
-            id="password"
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="input-field"
-            style={{ width: '100%', padding: '0.5rem', borderRadius: '4px' }}
-          />
-        </div>
-        <button type="submit" className="btn" style={{ width: '100%' }}>Log In</button>
-        <p style={{ marginTop: '1rem', textAlign: 'center' }}>
-          No account? <a href="/signup" style={{ color: 'var(--color-primary)' }}>Sign up</a>
-        </p>
-        </form>
-      </div>
-    </div>
+    <AuthLayout
+      title="Welcome back"
+      subtitle="Sign in to continue collaborating"
+      footer={
+        <>
+          No account?{' '}
+          <Link to="/signup" className="text-primary hover:underline">
+            Sign up
+          </Link>
+        </>
+      }
+    >
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {error && <p className="text-sm text-red-400">{error}</p>}
+        <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
+        <Input
+          label="Password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          autoComplete="current-password"
+        />
+        <Button type="submit" className="w-full" loading={loading}>
+          Log In
+        </Button>
+      </form>
+    </AuthLayout>
   );
 }
 
