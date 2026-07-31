@@ -1,10 +1,11 @@
 // src/store/authSlice.js
 import { createSlice } from '@reduxjs/toolkit';
+const authData = localStorage.getItem('auth')?JSON.parse(localStorage.getItem('auth')):null;
 
 const initialState = {
-  user: null,
-  accessToken: null,
-  isAuthenticated: false,
+  user: authData?.user || null,
+  accessToken: authData?.accessToken || null,
+  isAuthenticated: authData?.accessToken ? true : false,
   loading: false,
   error: null,
 };
@@ -13,6 +14,7 @@ const initialState = {
 // state, so it can't be read by an XSS payload or leaked into localStorage.
 const applySession = (state, action) => {
   const { user, accessToken } = action.payload;
+  localStorage.setItem('auth', JSON.stringify({ user, accessToken }));
   state.user = user;
   state.accessToken = accessToken;
   state.isAuthenticated = true;
@@ -28,6 +30,7 @@ const authSlice = createSlice({
     signupSuccess: applySession,
     verifySuccess: applySession,
     logout(state) {
+      localStorage.removeItem('auth');
       state.user = null;
       state.accessToken = null;
       state.isAuthenticated = false;
