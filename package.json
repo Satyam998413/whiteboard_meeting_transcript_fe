@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --port 3000",
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext .js,.jsx",
@@ -21,18 +21,18 @@
     "yjs": "^13.6.13"
   },
   "optionalDependencies": {
-    "html2canvas": "^1.4.1",
-    "@axe-core/react": "^4.6.2"
+    "@axe-core/react": "^4.6.2",
+    "html2canvas": "^1.4.1"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.4.5",
     "@testing-library/react": "^14.1.0",
     "@testing-library/user-event": "^14.4.3",
-    "@vitejs/plugin-react": "^5.0.2",
+    "@vitejs/plugin-react": "^4.7.0",
     "eslint": "^9.5.0",
     "jsdom": "^29.1.1",
     "vite": "^5.3.1",
-    "vitest": "^0.34.2"
+    "vitest": "^1.6.1"
   },
   "vitest": {
     "test": {

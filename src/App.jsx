@@ -1,3 +1,6 @@
+
+import React from 'react'; // 👈 Add this at the top of App.jsx
+
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
@@ -9,7 +12,7 @@ import Header from './components/Header';
 import ToastProvider from './components/ToastProvider';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectIsAuthenticated, loginSuccess } from './store/authSlice';
-import { useEffect } from 'react';
+import { useState,useEffect } from 'react';
 import { setAuthToken } from './api/apiClient';
 // Axe accessibility testing in development
 if (process.env.NODE_ENV !== 'production') {
